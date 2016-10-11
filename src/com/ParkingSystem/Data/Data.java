@@ -5,7 +5,7 @@ import com.ParkingSystem.User.User;
 public class Data {
 
 	public Object[][] userData = new Object[10][2];
-	int userCount = 0;
+	private int userCount = 0;
 
 	public void addUser(User u) {
 		
@@ -17,13 +17,13 @@ public class Data {
 			userCount++;
 			
 		} else {
-			Object[][] temp = new Object[userData.length+25][2];
-		
+			Object[][] temp = new Object[(int)(userData.length*1.5)][2];
+		  
 			System.arraycopy(userData, 0, temp, 0, userData.length);
 			userData = temp;
 			
 			userData[userCount][0] = u.getUserName();
-			userData[userCount][1]= u;
+			userData[userCount][1] = u;
 			userCount++;
 			
 			
@@ -48,9 +48,9 @@ public class Data {
 	        return this.value;
 	    }
 	}
-	public class BooleanHolder {
+	public class Mutex {
 	    Boolean value;
-	    public BooleanHolder(boolean u) {
+	    public Mutex(boolean u) {
 	        this.value = u;
 	    }
 	    public void setValue(boolean u) {
@@ -64,15 +64,14 @@ public class Data {
 	
 	public User lookUpUser(String userName) {
 		UserHolder uh = new UserHolder(null);
-		BooleanHolder bh = new BooleanHolder(false);
+		Mutex mutex = new Mutex(false);
 		
 		Thread t = new Thread(()->{
-			
 				for (int i = 0; i < userData.length / 2; i++) {
-					if (bh.getValue() == false ){
+					if (mutex.getValue() == false ){
 						if(userData[i][0].equals(userName)) {
 							uh.setValue((User) userData[i][1]);
-							bh.setValue(true);
+							mutex.setValue(true);
 							
 							break;
 						}
@@ -85,10 +84,10 @@ public class Data {
 		Thread t2 = new Thread(()->{
 			
 			for (int i =  userData.length / 2; i < userData.length; i++) {
-				if (bh.getValue() == false ){
+				if (mutex.getValue() == false ){
 					if(userData[i][0].equals(userName)) {
 						uh.setValue((User) userData[i][1]);
-						bh.setValue(true);
+						mutex.setValue(true);
 						break;
 					}
 				} else {
