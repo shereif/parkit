@@ -1,8 +1,10 @@
 package com.ParkingSystem.Data;
-
+//@Author Jason Knaster
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Stack;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import com.ParkingSystem.User.User;
 
@@ -17,8 +19,9 @@ public class Data {
 	Stack<User> reapCandidates = new Stack<>();
 	
 	ConsumableMutex cM = new ConsumableMutex(false);
+	Mutex reaperMutex = new Mutex(false);
 	public void addNewUserToQueue(User u) {
-		cM.lock();
+//		cM.lock();
 
 		newUsers.add(u);
 		reapCandidates.add(u);
@@ -29,17 +32,28 @@ public class Data {
 		while (true) {
 			
 			while (cM.isLocked()) {
-				if (!reapCandidates.isEmpty()) {
-					cM.consume();
+				cM.consume();
+				if (!reapCandidates.isEmpty() && !cM.isLocked()) {
+					reaperMutex.lock();
+				
 					User u = reapCandidates.pop();
-					newUsers.removeIf(user -> user.getUserName().equals(u));
+				
+					Supplier<Stream<User>> streamSupplier =()-> Stream.of(newUsers.stream().toArray(User[]::new)).filter(user->user.getClass() != null);
+					if(streamSupplier.get().count()>1){
+						
+						newUsers.remove(streamSupplier.get().findFirst().get());
+					}
 					System.out.println("Reaped a duplicated registerd users");
-					
+				
 					break;
 					
 				}
+				
 			}
+			reaperMutex.unLock();
+		
 		}
+		
 	}
 	//
 	// public synchronized void addUser(User u) {
@@ -64,9 +78,10 @@ public class Data {
 	//
 	// }
 
-	public synchronized void loadQueueToDB() {
-		while (newUsers.peek() != null) {
-
+	public  void loadQueueToDB() {
+		System.out.println("Mutex " + reaperMutex.isLocked());
+		while (!reaperMutex.isLocked() && newUsers.peek() != null) {
+		System.out.println("Adding..");
 			User u = newUsers.poll();
 			if (userCount <= userData.length - 1) {
 
@@ -85,7 +100,9 @@ public class Data {
 				userCount++;
 
 			}
+			
 		}
+		
 
 	}
 
@@ -120,6 +137,9 @@ public class Data {
 
 		public void lock() {
 			this.value = true;
+		}
+		public void unLock(){
+			this.value = false;
 		}
 
 		public boolean isLocked() {

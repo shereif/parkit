@@ -31,12 +31,18 @@ public class TestData {
 		
 		System.out.println("Loading DB with recent queues");
 		
+		
 		d.loadQueueToDB();
+		
 		//d.prnt();
 		System.out.println("Done initializing users");
 		
 		System.out.println("Done sleeping, looking up initiated");
 	
+		for (int i = 0; i < d.getDBSIZE()/2; i += 1) {
+			System.out.println("Looked up " + "o"+ i+ " " +d.lookUpUser("o"+i).getUserName());
+		}
+		
 		
 	
 		
