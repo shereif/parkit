@@ -18,7 +18,6 @@ public class ParkingCLI {
 
 	public static void loadCommands() {
 		ParkingCmd pc = new ParkingCmd(() -> {
-
 			UserFactory uf = new UserFactory();
 			User owner = uf.getUser("Owner");
 			System.out.println("Enter a username");
@@ -37,7 +36,7 @@ public class ParkingCLI {
 			Owner o_owner = (Owner) owners;
 			o_owner.setUserName(userName);
 			o_owner.registerNewParkingLot(parkingLotName, capacity);
-			d.addUser(o_owner);
+			d.addNewUserToQueue(o_owner);
 		});
 		cmdMap.put("Initialize Owner", pc);
 

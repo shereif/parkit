@@ -9,20 +9,37 @@ public class TestData {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		Data d = new Data();
+		d.startReaperThread();
 		UserFactory uf = new UserFactory();
-		for (int i = 0; i < 100000; i += 1) {
+		for (int i = 0; i < 100; i += 1) {
 			User owner = uf.getUser("Owner");
 			owner.setUserName("o"+i);
 			
 			
-			d.addUser(owner);
+			d.addNewUserToQueue(owner);
 
 		}
-		//d.prnt();
-		
-		System.out.println("Done initializing users");
-		System.out.println("looked up user successfully"+ d.lookUpUser("o786").getUserName());
+		for (int i = 0; i < 100; i += 1) {
+			User owner = uf.getUser("Owner");
+			owner.setUserName("o"+i);
+			
+			
+			d.addNewUserToQueue(owner);
 
+		}
+		
+		
+		System.out.println("Loading DB with recent queues");
+		
+		d.loadQueueToDB();
+		//d.prnt();
+		System.out.println("Done initializing users");
+		
+		System.out.println("Done sleeping, looking up initiated");
+	
+		
+	
+		
 	}
 
 }
